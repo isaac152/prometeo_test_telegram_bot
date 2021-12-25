@@ -43,7 +43,7 @@ def login(update:Update,context:CallbackContext)->int:
     """Login entry"""
     logger.info("login entry")
     update.message.reply_text(
-        'First of all, you need to select a provider\n'
+        'First of all, you need to select a provider\n\n'
         'Btw, you can send /cancel to stop our little talk \n \n'
         'Please select your provider:',
         reply_markup=ReplyKeyboardMarkup([[i] for i in providers],one_time_keyboard=True, input_field_placeholder='Which provider?'),
@@ -105,8 +105,10 @@ def display_info(update:Update,context:CallbackContext)->int:
     user = context.user_data['user_prometeus']
     operation = context.user_data.get('operation','error')
     result= user.wrapper_operation(operation,providers_codes[update.message.text])
+    del context.user_data['operation']
     for r in result:
         update.message.reply_text(r)
+    return ConversationHandler.END
 
 def general_operation(update:Update,context:CallbackContext)->None:
     """Select the provider to execute an operation from the API"""
@@ -114,7 +116,7 @@ def general_operation(update:Update,context:CallbackContext)->None:
     providers_markup = [[providers_names[provider]] for provider in user.user_data.keys()]
     markup=ReplyKeyboardMarkup(providers_markup,one_time_keyboard=True,input_field_placeholder="Which provider?")
     update.message.reply_text(
-        'You need to select a provider'
+        'You need to select a provider\n'
         'Btw, you can send /cancel to stop our little talk \n \n'
         'Please select your provider:',
         reply_markup=markup,)
@@ -122,6 +124,7 @@ def general_operation(update:Update,context:CallbackContext)->None:
 
 def account(update:Update,context:CallbackContext)->int:
     """Selec the get account operation from the API"""
+    logger.info(f"Data: {context.user_data.get('user_prometeus','None')}")
     if 'user_prometeus' in context.user_data:
         general_operation(update,context)
         context.user_data['operation']='account'
@@ -168,7 +171,7 @@ def help_message(update:Update,context:CallbackContext)->None:
     if 'login' in context.user_data:
         update.message.reply_text("Let me guide you a little bit")
         update.message.reply_text("/login if you want to add another bank-account")
-        update.message.reply_text("/account if you... wel... want to see the status of your bank-account")
+        update.message.reply_text("/account if you... well... want to see the status of your bank-account")
         update.message.reply_text("/credit_cards check your credit cards")
         update.message.reply_text("/logout if you want to exit from every account")
         update.message.reply_text("/help if you want to see this message again")

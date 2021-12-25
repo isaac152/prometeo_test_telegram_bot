@@ -95,7 +95,7 @@ class User:
     def check_session_time(self)->bool:
         actual_time = datetime.datetime.now()
         if(((actual_time-self.time).total_seconds()/60)>5):
-            print((actual_time-self.time).total_seconds())
+            print((actual_time-self.time).total_seconds()/60)
             return False
         return True        
 
