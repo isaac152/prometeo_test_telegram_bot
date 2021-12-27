@@ -17,6 +17,7 @@ COUNTRIES = {
 }
 
 def providers_format(providers:List)->List:
+    """Change the country name to an emoji flag"""
     format_list= []
     for i in providers:
         i['country']=COUNTRIES[i['country']]
@@ -70,6 +71,7 @@ def formating_credit_cards(credit_cards:List)->List:
     return text
 
 def formating_account_movements(account_movements:List,currency:str)->List:
+    """Format the account movements into a a string multiline"""
     text = []
     total_credit,total_debit=0,0
     for movement in account_movements:

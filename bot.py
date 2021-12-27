@@ -269,7 +269,8 @@ def test(update:Update,context:CallbackContext)->None:
         }
     check_login(update,context)
 
-def not_found(update: Update, context: CallbackContext):
+def not_found(update: Update, context: CallbackContext)->None:
+    """Message when user input a invalid command"""
     context.bot.send_message(chat_id=update.effective_chat.id, text="Sorry, I didn't understand that command.")
 
 def main() -> None:
