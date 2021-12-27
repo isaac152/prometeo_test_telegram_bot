@@ -11,7 +11,7 @@ from telegram.ext import (
     Defaults,
     CallbackQueryHandler
 )
-from prometeus import get_providers,User,provider_info
+from prometeo import get_providers,User,provider_info
 from telegram_calendar.telegramcalendar import create_calendar,process_calendar_selection
 from configure import TELEGRAM_KEY
 
