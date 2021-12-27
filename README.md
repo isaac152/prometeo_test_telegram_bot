@@ -1,12 +1,12 @@
 ﻿# Prometeo (test) Telegram Bot 
 
-Prometo is the largest Open Banking platform in Latam. You can read more about them here: https://prometeoapi.com/
+Prometeo is the largest Open Banking platform in Latam. You can read more about them here: https://prometeoapi.com/
 
-This is a simple telegram bot to use their sandbox api but can work with the real api, at least for check account and credit cards. 
+This is a simple telegram bot to use their sandbox api but it can work with the real api, at least for check account and credit cards. 
 
 Note: Telegram calendar is not mine, i just used the [library](https://github.com/unmonoqueteclea/calendar-telegram). 
 
-You can fin the bot here: http://t.me/prometeo_test_bot 
+You can find the bot here: http://t.me/prometeo_test_bot 
 
 ## Diagram
 ![Diagram](https://raw.githubusercontent.com/isaac152/prometeo_test_telegram_bot/main/PrometeoTelegramDiagram.png)
