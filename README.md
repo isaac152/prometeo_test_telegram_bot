@@ -13,6 +13,7 @@ You can fin the bot here: http://t.me/prometeo_test_bot
 
 ## Bot 
 **Start**
+
 ![Start command ](https://i.imgur.com/wsxHkL1.jpg)
 
 
@@ -21,6 +22,7 @@ You can fin the bot here: http://t.me/prometeo_test_bot
 ![Login process](https://i.imgur.com/Dzitovx.jpg)
 
 **All commands**
+
 ![All commandas](https://i.imgur.com/f0fX9JZ.jpg)
 
 **Account command**
@@ -28,7 +30,9 @@ You can fin the bot here: http://t.me/prometeo_test_bot
 ![Account command](https://i.imgur.com/w9SCjuH.jpg)
 
 ![Account command](https://i.imgur.com/xNZMgwU.jpg)
+
 **Account movements**
+
 ![Account movements](https://i.imgur.com/FnTwPex.jpg)
 
 ![Account movements](https://i.imgur.com/mwU4rRB.jpg)
