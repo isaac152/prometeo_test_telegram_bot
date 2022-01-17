@@ -1,103 +1,33 @@
+from pyclbr import Function
 from typing import List,Tuple
 import requests
 import datetime
 from configure import PROMETEO_KEY
+from utils import providers_format,provider_info
+from utils import formating_account,formating_credit_cards,formating_account_movements
+
 URL = 'https://banking.sandbox.prometeoapi.com/'
 
-COUNTRIES = {
-    'MX':'🇲🇽',
-    'PE':'🇵🇪',
-    'CL':'🇨🇱',
-    'UY':'🇺🇾',
-    'BR':'🇧🇷',
-    'EC':'🇪🇨',
-    'CO':'🇨🇴',
-    'PA':'🇵🇦',
-    'AR':'🇦🇷',
-}
-
-def providers_format(providers:List)->List:
-    """Change the country name to an emoji flag"""
-    format_list= []
-    for i in providers:
-        i['country']=COUNTRIES[i['country']]
-        format_list.append(i)
-    return format_list
-        
-def provider_info(providers:List)->Tuple[List,List]:
-    """Generate a list of dict with a format for providers info"""
-    providers_name_code = {f'{p["name"]} {p["country"]}':p['code'] for p in providers}
-    providers_code_name = {p['code']:f'{p["name"]} {p["country"]}' for p in providers}
-    return providers_name_code,providers_code_name
 
 def get_providers()->List:
     """Get the providers info from the API"""
     r=requests.get(URL+'provider/',headers={'X-API-KEY':PROMETEO_KEY})
     providers=[]
     if r.status_code==200:
-        providers= providers_format(r.json()['providers'])
+        providers = r.json()['providers']
+        providers.append({"code":"All","country":'WW','name':'All providers'})
+        providers= providers_format(providers)
     return providers
 
-def formating_account(accounts:List)->List:
-    """Format the accounts info to a string multiline"""
-    text= []
-    for i in accounts:
-        if(i):
-            name = i.get('name','')
-            number = i['number']
-            currency= i['currency']
-            balance = i['balance']
-            line_account=f"<b>Name: </b>{name}\n<b>Number: </b>{number}\n<b>Balance: </b>{balance} {currency}\n"
-            text.append(line_account)
-        else:
-            text.append('You dont have an account in this provider yet')
-    return text
-
-def formating_credit_cards(credit_cards:List)->List:
-    """Format the credit cards info to a string multiline"""
-    text= []
-    for card in credit_cards:
-        if(card):
-            name = card['name']
-            number = card['number']
-            close_date= card['close_date']
-            due_date = card['due_date']
-            local_balance = card['balance_local']
-            dollar_balance = card['balance_dollar']
-            line_account=f"<b>Name: </b>{name}\n<b>Number: </b>{number}\n<b>Balance local: </b>{local_balance}\n<b>Balance dolar: </b> {dollar_balance} $\n<b>Close date: </b>{close_date}\n<b>Due date: </b>{due_date}"
-            text.append(line_account)
-        else:
-            text.append('You dont have any credit card in this provider yet')
-    return text
-
-def formating_account_movements(account_movements:List,currency:str)->List:
-    """Format the account movements into a a string multiline"""
-    text = []
-    total_credit,total_debit=0,0
-    for movement in account_movements:
-        if(movement):
-            id_m = movement['id']
-            date = movement['date']
-            detail = movement['detail']
-            debit = movement['debit']
-            credit = movement['credit']
-            if(debit):
-                total_debit+=debit
-                amount = f"<b>Debit :</b>{debit} {currency}"
-            else:
-                total_credit+=credit
-                amount = f"<b>Credit :</b>{credit} {currency}"
-            line_movement = f"<b>Id: </b>{id_m}\n<b>Date: </b>{date}\n<b>Details: </b>{detail}\n{amount}"
-            text.append(line_movement)
-        else:
-            text.append('You dont have movements on this date range')
-    text.append(f'<b>Total debit: </b>{total_debit:.2f} {currency}\n<b>Total credit: </b>{total_credit:.2f} {currency}')
-    return text
+#Get the providers data
+providers = get_providers()
+providers_codes,providers_names = provider_info(providers)
+providers= [p['name']+' '+p['country'] for p in providers]
 
 class User:
     def __init__(self,**kwargs)->None:
         self.api_key ={'X-API-Key':kwargs.get('key',PROMETEO_KEY)}
-        self.user_data = {}
+        self.user_data = {'All':{}}
         self.__set_operations_dictionary()
 
     def set_user_data(self,**kwargs)->None:
@@ -140,18 +70,17 @@ class User:
             if(provider is not 'All'):
                 return operation_function(provider,*args, **kwargs)
             else:
-
                 return self.operation_in_all_providers(operation_function,*args, **kwargs)
-    def operation_in_all_providers(self,operation:str,*args, **kwargs)->List:
-        results= []
+    def operation_in_all_providers(self,operation:Function,*args, **kwargs)->List:
+        result= []
         for k in self.user_data.keys():
             if k is not 'All':
-                result = self.operations.get(operation,self.not_found)(k)
-                results.append(result)
-        return results
+                result.append(providers_names[k])
+                result.extend(operation(k))
+        return result
 
-    def not_found(self,provider:str)->List:
-        return [f'Sorry, that operation for {provider} is not allowed']
+    def not_found(self,provider:str)->str:
+        return f'Sorry, that operation for {provider} is not allowed'
 
     def get_accounts(self,provider:str,*args, **kwargs)->List:
         r= requests.get(URL+'account/', params={'key':self.user_data[provider]['key']},headers=self.api_key)

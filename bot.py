@@ -11,9 +11,9 @@ from telegram.ext import (
     Defaults,
     CallbackQueryHandler
 )
-from prometeo import get_providers,User,provider_info
-from telegram_calendar.telegramcalendar import create_calendar,process_calendar_selection
 from configure import TELEGRAM_KEY
+from prometeo import User,providers,providers_codes,providers_names
+from telegram_calendar.telegramcalendar import create_calendar,process_calendar_selection
 
 logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO
@@ -24,10 +24,6 @@ logger = logging.getLogger(__name__)
 LOGIN,COMMANDHELP,PROVIDER,USERNAME,PASSWORD = range(5)
 ACCOUNT, DATES= range(2)
 
-#Get the providers data
-providers = get_providers()
-providers_codes,providers_names = provider_info(providers)
-providers= [p['name']+' '+p['country'] for p in providers]
 
 def start(update: Update, context: CallbackContext) -> None:
     """Starts the conversation """
@@ -48,7 +44,7 @@ def login(update:Update,context:CallbackContext)->int:
         'First of all, you need to select a provider\n\n'
         'Btw, you can send /cancel to stop our little talk \n \n'
         'Please select your provider:',
-        reply_markup=ReplyKeyboardMarkup([[i] for i in providers],one_time_keyboard=True, input_field_placeholder='Which provider?'),
+        reply_markup=ReplyKeyboardMarkup([[i] for i in providers[:-1]],one_time_keyboard=True, input_field_placeholder='Which provider?'),
     )
     return PROVIDER
 
@@ -113,10 +109,15 @@ def display_info(update:Update,context:CallbackContext)->int:
         update.message.reply_text(r)
     return ConversationHandler.END
 
-def general_operation(update:Update,context:CallbackContext)->None:
+def general_operation(update:Update,context:CallbackContext,all_option:bool)->None:
     """Select the provider to execute an operation from the API"""
+    """All option mark what operations can have <all> as option """
     user = context.user_data['user_prometeus']
-    providers_markup = [[providers_names[provider]] for provider in user.user_data.keys()]
+    options = user.user_data
+    if not all_option:
+        options = user.user_data.copy()
+        options.pop('All',None)
+    providers_markup = [[providers_names[provider]] for provider in options.keys()]
     markup=ReplyKeyboardMarkup(providers_markup,one_time_keyboard=True,input_field_placeholder="Which provider?")
     update.message.reply_text(
         'You need to select a provider\n'
@@ -129,7 +130,7 @@ def account(update:Update,context:CallbackContext)->int:
     """Selec the get account operation from the API"""
     logger.info(f"Data: {context.user_data.get('user_prometeus','None')}")
     if 'user_prometeus' in context.user_data:
-        general_operation(update,context)
+        general_operation(update,context,True)
         context.user_data['operation']='account'
         return PROVIDER
     else:
@@ -139,7 +140,7 @@ def account(update:Update,context:CallbackContext)->int:
 def credit_cards(update:Update,context:CallbackContext)->int:
     """Selec the get credit cards operation from the API"""
     if 'user_prometeus' in context.user_data:
-        general_operation(update,context)
+        general_operation(update,context,True)
         context.user_data['operation']='credit_cards'
         return PROVIDER
     else:
@@ -189,7 +190,7 @@ def account_movements(update:Update,context:CallbackContext)->int:
     """Selec the account_movements operation from the API"""
     logger.info(f"Data: {context.user_data.get('user_prometeus','None')}")
     if 'user_prometeus' in context.user_data:
-        general_operation(update,context)
+        general_operation(update,context,False)
         return ACCOUNT
     else:
         error(update,context)

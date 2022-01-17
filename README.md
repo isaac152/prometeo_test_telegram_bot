@@ -40,5 +40,5 @@ You can find the bot here: http://t.me/prometeo_test_bot
 ### TODO
 
  - [ ] Organize the functions in multiple files. Also, I should divide the User class into two or more classes.
- - [ ] Add the "All" provider, so you can check the account and credit card in all your accounts with one command.
+ - [X] Add the "All" provider, so you can check the account and credit card in all your accounts with one command.
 
